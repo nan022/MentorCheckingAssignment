@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Sensus Site</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <div class="mypic">
+    </div>
+    <div class="mypost">
+        <div class="form-floating mb-3">
+            <div class="container">
+                <h3 class="text-center">Checking Pending Status</h3>
+            </div>
+            <form method="POST" enctype="multipart/form-data">
+                <input class="form-control mb-4" type="file" name="file" accept=".csv">
+                <div class="drop-down">
+                    <select class="form-control mb-4" name="" id="">
+                        <option value="">Pilih Mentor</option>
+                        <option value="">Mentor A</option>
+                        <option value="">Mentor B</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+    <div class="mycards" id="comment-list">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Learner Name</th>
+                            <th>Institute Name</th>
+                            <th>Course Title</th>
+                            <th>Submission Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if result %}
+                            {% for item in result %}
+                                <tr>
+                                    <td>{{ item['LearnerName'] }}</td>
+                                    <td>{{ item['Institute Name'] }}</td>
+                                    <td>{{ item['Course Title'] }}</td>
+                                    <td>{{ item['SubmissionDate'] }}</td>
+                                    <td>{{ item['Status'] }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center">Tidak ada data yang dipilih.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+</body>
+
+</html>
