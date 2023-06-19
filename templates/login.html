@@ -43,6 +43,11 @@
 
       <!-- Page CSS -->
 
+      <!-- CDN Jquery dan JS Cookie -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+      <script src="{{ url_for('static', filename='auth.js')}}"></script>
+
       <!-- Sweet Alert -->
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -65,10 +70,6 @@
             gtag('js', new Date());
             gtag('config', 'GA_MEASUREMENT_ID');
       </script>
-
-      <!-- Cdn Jquery -->
-      <script src="https://code.jquery.com/jquery-3.7.0.js"
-            integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
 
       <style>
             .center-content {
@@ -95,7 +96,7 @@
                         </div>
                         <div class="container">
                               <div class="row">
-                                    <form method="POST">
+                                    <div>
                                           <div class="col col-mx-12">
                                                 <label for="Email" class="form-label">Email</label>
                                                 <input type="text" class="form-control" id="email" name="email"
@@ -125,10 +126,9 @@
                                                 </div>
                                           </div>
                                           <div class="row mt-4">
-                                                <button onclick="sign_in()" type="submit"
-                                                      class="btn btn-danger btn-lg">Login</button>
+                                                <button onclick="sign_in()" class="btn btn-danger btn-lg">Login</button>
                                           </div>
-                                    </form>
+                                    </div>
                               </div>
                         </div>
                         <div class="card-body">
@@ -161,47 +161,20 @@
       <!-- Sweet Alert -->
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-      <!-- CDN Jquery -->
-      <script src="https://code.jquery.com/jquery-3.7.0.js"
-            integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
 
       <script type="text/javascript">
             $('#btnTambahPresensi').click(function () {
                   $('#presensiForm').toggle();
             })
-
-            function sign_in() {
-                  let email = $('#email').val();
-                  let password = $('#password').val();
-
-                  //alert(email + password);
-
-                  $.ajax({
-                        type: "POST",
-                        url: '/sign_in_cek',
-                        data: {
-                              email_give: email,
-                              password_give: password
-                        },
-                        success: function (response) {
-                              if (response["result"] === "success") {
-                                    window.location.replace("/home");
-                              } else {
-                                    swal("Warning!", "Berhasil Tambah Data!", {
-                                          icon : "warning",
-                                    });
-                              }
-                        }
-                  });
-            }
       </script>
 
       <!-- build:js assets/vendor/js/core.js -->
-      <script src="{{ url_for('static', filename='sneat/assets/vendor/libs/jquery/jquery.js') }}"></script>
+      <!-- <script src="{{ url_for('static', filename='sneat/assets/vendor/libs/jquery/jquery.js') }}"></script> -->
       <script src="{{ url_for('static', filename='sneat/assets/vendor/libs/popper/popper.js') }}"></script>
       <script src="{{ url_for('static', filename='sneat/assets/vendor/js/bootstrap.js') }}"></script>
       <script src="{{ url_for('static', filename='sneat/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}">
       </script>
+      
 
       <script src="{{ url_for('static', filename='sneat/assets/vendor/js/menu.js') }}"></script>
 
