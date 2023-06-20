@@ -120,16 +120,14 @@ def data_history():
             SECRET_KEY, 
             algorithms=['HS256']
         )
-        # user_info = db.users.find_one({'username': payload.get('email')})
-        # return render_template("index.html", user_info=user_info)
-        # Mengambil data
         pipeline = [
             {
                 '$group': {
                     '_id': '$waktu',
-                    'mentors': {
-                        '$push': '$mentor_list'
-                    }
+                    '_status': {
+                        '$first': '$status' 
+                    },
+                    'count': { '$sum': 1 }
                 }
             }
         ]
@@ -142,7 +140,23 @@ def data_history():
         msg = 'There was problem logging you in'
         return redirect(url_for('login', msg=msg))
     
-    
+@app.route('/detail_history/<time>')
+def detail_history(time):
+    token_receive = request.cookies.get(TOKEN_KEY)
+    try:
+        payload = jwt.decode(
+            token_receive, 
+            SECRET_KEY, 
+            algorithms=['HS256']
+        )
+        data = db.record_mentor.find({'waktu': time})
+        return render_template("detail_history.html", data_list=data)
+    except jwt.ExpiredSignatureError:
+        msg = 'Your token has expired'
+        return redirect(url_for('login', msg=msg))
+    except jwt.exceptions.DecodeError:
+        msg = 'There was a problem logging you in'
+        return redirect(url_for('login', msg=msg))
 
 @app.route('/institute_course')
 def institute_course():
@@ -186,7 +200,7 @@ def kelas_post():
 @app.route('/post_institute', methods=["POST"])
 def institute_post():
     institute_receive = request.form['institute_give']
-    course_receive = request.form['course_give']
+    course_receive = request.form['corse_give']
     category_receive = request.form['category_give']
     doc = {
         'institute': institute_receive,
