@@ -50,10 +50,6 @@
        };
  </script>
 
- <!-- Data table -->
-
- <!-- Include jQuery -->
- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
  <!-- Add Data Course -->
  <script type="text/javascript">
@@ -105,18 +101,20 @@
                                      'error'
                                );
                          } else {
-                               Swal.fire(
-                                     'Good job!',
-                                     'Data was added!',
-                                     'success'
-                               );
+                              Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: 'Data was Added!',
+                                    willClose: () => {
+                                        window.location.reload();
+                                    }
+                              });
                          }
                    }
              });
        }
  </script>
 
- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
  <!-- Select2JS -->
  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />

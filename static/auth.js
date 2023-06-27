@@ -38,7 +38,13 @@ function sign_in() {
 }
 
 function sign_out() {
-    $.removeCookie('gungnir', { path: '/' });
-    alert('Signed out!');
-    window.location.href = "/login";
+    Swal.fire({
+        icon: 'success',
+        title: 'You Logged Off',
+        text: 'Click OK to go to login page',
+        willClose: () => {
+            $.removeCookie('gungnir', { path: '/' });
+            window.location.replace('/login')
+        }
+  });
 }
