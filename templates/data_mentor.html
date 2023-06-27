@@ -9,29 +9,39 @@
                               Add Data <i class="bx bx-plus"></i>
                         </button>
                   </div>
+                  <!-- Urgent Button -->
+                  <!-- <form action="/delete_data_class" method="POST">
+                        <button class="btn btn-secondary" type="submit">
+                            <i class="bx bx-trash"></i> Clear Data
+                        </button>
+                  </form> -->
             </div>
             <!-- Form Start -->
             <div class="col-xxl">
                   <div id="presensiForm" class="card mb-4" style="display: none;">
                         <div class="card-header d-flex align-items-center justify-content-between">
-                              <h5 class="mb-0">Tambah Data Class</h5>
+                              <h5 class="mb-0">Add Data Class</h5>
                         </div>
                         <div class="card-body">
                               <form>
                                     <div class="row mb-1">
                                           <label class="col-sm-2 col-form-label" for="basic-default-email">Mentor
                                                 LearningX</label>
-                                          <div class="col-sm-10">
-                                                <input class="form-control mb-4" type="text" id="mentor" name="mentor"
-                                                      required>
+                                          <div class="col-10">
+                                                <select class="mb-4 js-example-basic-single form-select" name="mentor"
+                                                      id="mentor">
+                                                      {% for item in data_mentor|sort(attribute='nama') %}
+                                                      <option value="{{ item.nama }}">{{ item.nama }}</option>
+                                                      {% endfor %}
+                                                </select>
                                           </div>
                                     </div>
                                     <div class="row mb-1">
                                           <label class="col-sm-2 col-form-label"
                                                 for="basic-default-email">Sekolah</label>
                                           <div class="col-sm-10">
-                                                <select class="form-select mb-4" name="sekolah" id="sekolah">
-                                                      <option disabled>Choose Institute:</option>
+                                                <select class="form-select mb-4 js-example-basic-single" name="sekolah"
+                                                      id="sekolah">
                                                       {% for item in data_institute %}
                                                       <option value="{{ item.institute }}">{{ item.institute }}</option>
                                                       {% endfor %}
@@ -42,18 +52,17 @@
                                           <label class="col-sm-2 col-form-label" for="basic-default-email">Course
                                                 Title</label>
                                           <div class="col-sm-10">
-                                                <select class="form-select mb-4" name="program" id="program">
-                                                      <option disabled>Choose Course:</option>
-                                                      <option value="WR102: Web Development Basic">WR102: Web
-                                                            Development Basic</option>
-                                                      <option value="WR103: Web Development Intermediate">WR103: Web
-                                                            Development Intermediate</option>
+                                                <select class="form-select mb-4 js-example-basic-single" name="program"
+                                                      id="program">
+                                                      {% for course in data_course %}
+                                                      <option value="{{ course }}">{{ course }}</option>
+                                                      {% endfor %}
                                                 </select>
                                           </div>
                                     </div>
                                     <div class="row justify-content-end">
                                           <div class="col-sm-10">
-                                                <button onclick="tambah_data()" type="submit"
+                                                <button onclick="tambah_data_kelas()" type="submit"
                                                       class="btn btn-primary">Submit</button>
                                           </div>
                                     </div>
@@ -64,6 +73,10 @@
             <!-- Form End -->
             <div class="table-responsive text-nowrap">
                   <table class="table">
+                        <div class="container">
+                              <p class="mb-2"><b>Search Data:</b></p>
+                              <input class="form-control mb-2" type="text" id="searchClass" placeholder="Search...">
+                        </div>
                         <thead>
                               <tr>
                                     <th>Institute Name</th>
@@ -77,7 +90,7 @@
                               <tr>
                                     <td>
                                           {% for sekolah in item['sekolah'] %}
-                                          {% if 'SM' in sekolah %}
+                                          {% if 'SM' in sekolah or 'SD' in sekolah %}
                                           {{ sekolah }}<br>
                                           {% else %}
                                           {{ sekolah }}
@@ -94,13 +107,17 @@
                                     </td>
                               </tr>
                               {% endif %}
-
                         </tbody>
                   </table>
             </div>
       </div>
 </div>
 </div>
-
+<script>
+      // In your Javascript (external .js resource or <script> tag)
+      $(document).ready(function () {
+            $('.js-example-basic-single').select2();
+      });
+</script>
 <!-- Content -->
 {% include 'footer.html' %}

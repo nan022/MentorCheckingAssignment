@@ -1,12 +1,12 @@
 from pymongo import MongoClient
 import jwt
-import datetime
 import hashlib
-from datetime import datetime,timedelta
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from werkzeug.utils import secure_filename
 import pandas as pd
 from collections import defaultdict
+import datetime as dt
+from datetime import datetime, timedelta
 
 client = MongoClient('mongodb+srv://nande:nande@cluster0.8kafc33.mongodb.net/?retryWrites=true&w=majority')
 db = client.dbmentorcek
@@ -31,9 +31,12 @@ def home():
             SECRET_KEY, 
             algorithms=['HS256']
         )
-        # user_info = db.users.find_one({'username': payload.get('email')})
-        # return render_template("index.html", user_info=user_info)
-        return render_template("home.html")
+        mentor_record = db.record_mentor.find()
+        mentor_data = db.mentor.find()
+        total_record = len(list(mentor_record))
+        total_mentor = len(list(mentor_data))
+        user_info = db.users.find_one({'email': payload.get('email')})
+        return render_template("home.html", user_info=user_info, total_record=total_record, total_mentor=total_mentor)
     except jwt.ExpiredSignatureError:
         msg = 'Your token has expired'
         return redirect(url_for('login', msg=msg))
@@ -41,7 +44,6 @@ def home():
         msg = 'There was problem logging you in'
         return redirect(url_for('login', msg=msg))
     
-
 @app.route('/sign_in', methods=["POST"])
 def sign_in_cek():
     email_receive = request.form['email_give']
@@ -81,8 +83,6 @@ def data_kelas():
             SECRET_KEY, 
             algorithms=['HS256']
         )
-        # user_info = db.users.find_one({'username': payload.get('email')})
-        # return render_template("index.html", user_info=user_info)
         pipeline = [
             {
                 '$group': {
@@ -100,16 +100,18 @@ def data_kelas():
                 }
             }
         ]
-        data_institute = db.institute.find()
         mentor_list = list(db.kelas.aggregate(pipeline))
-        return render_template("data_mentor.html", mentor_list=mentor_list, data_institute=data_institute)
+        user_info = db.users.find_one({'email': payload.get('email')})
+        data_institute = db.institute.find()
+        mentor_data = db.mentor.find()
+        course_data = db.institute.distinct("course")
+        return render_template("data_mentor.html", mentor_list=mentor_list, data_institute=data_institute, data_mentor=mentor_data, data_course=course_data, user_info=user_info)
     except jwt.ExpiredSignatureError:
         msg = 'Your token has expired'
         return redirect(url_for('login', msg=msg))
     except jwt.exceptions.DecodeError:
         msg = 'There was problem logging you in'
         return redirect(url_for('login', msg=msg))
-
 
 @app.route('/data_history')
 def data_history():
@@ -131,8 +133,9 @@ def data_history():
                 }
             }
         ]
+        user_info = db.users.find_one({'email': payload.get('email')})
         data = db.record_mentor.aggregate(pipeline)
-        return render_template("mentor_history.html", data_list=data)
+        return render_template("mentor_history.html", data_list=data, user_info=user_info)
     except jwt.ExpiredSignatureError:
         msg = 'Your token has expired'
         return redirect(url_for('login', msg=msg))
@@ -149,8 +152,9 @@ def detail_history(time):
             SECRET_KEY, 
             algorithms=['HS256']
         )
+        user_info = db.users.find_one({'email': payload.get('email')})  
         data = db.record_mentor.find({'waktu': time})
-        return render_template("detail_history.html", data_list=data)
+        return render_template("detail_history.html", data_list=data, user_info=user_info)
     except jwt.ExpiredSignatureError:
         msg = 'Your token has expired'
         return redirect(url_for('login', msg=msg))
@@ -167,10 +171,9 @@ def institute_course():
             SECRET_KEY, 
             algorithms=['HS256']
         )
-        # user_info = db.users.find_one({'username': payload.get('email')})
-        # return render_template("index.html", user_info=user_info)     
+        user_info = db.users.find_one({'email': payload.get('email')})  
         data = db.institute.find()
-        return render_template("institute.html", data=data)
+        return render_template("institute.html", data=data, user_info=user_info)
     except jwt.ExpiredSignatureError:
         msg = 'Your token has expired'
         return redirect(url_for('login', msg=msg))
@@ -178,11 +181,34 @@ def institute_course():
         msg = 'There was problem logging you in'
         return redirect(url_for('login', msg=msg))
     
+@app.route('/mentor')
+def mentor():
+    token_receive = request.cookies.get(TOKEN_KEY)
+    try:
+        payload = jwt.decode (
+            token_receive, 
+            SECRET_KEY, 
+            algorithms=['HS256']
+        )
+        user_info = db.users.find_one({'email': payload.get('email')})  
+        data = db.mentor.find()
+        return render_template("mentor.html", data=data, user_info=user_info)
+    except jwt.ExpiredSignatureError:
+        msg = 'Your token has expired'
+        return redirect(url_for('login', msg=msg))
+    except jwt.exceptions.DecodeError:
+        msg = 'There was problem logging you in'
+        return redirect(url_for('login', msg=msg))
 
 @app.route('/delete_data', methods=['POST'])
 def delete_data():
     db.record_mentor.delete_many({})
     return redirect('/data_history')
+
+@app.route('/delete_data_class', methods=['POST'])
+def delete_data_class():
+    db.kelas.delete_many({})
+    return redirect('/data_kelas')
 
 @app.route('/tambah_data_kelas', methods=["POST"])
 def kelas_post():
@@ -210,6 +236,23 @@ def institute_post():
     db.institute.insert_one(doc)
     return jsonify({'msg': 'Data berhasil disimpan!'})
 
+@app.route('/post_mentor', methods=["POST"])
+def mentor_post():
+    mentor_receive = request.form['mentor_give']
+    gender_receive = request.form['gender_give']
+    address_receive = request.form['address_give']
+    
+    existing_mentor = db.mentor.find_one({'nama': mentor_receive})
+    if existing_mentor:
+        return jsonify({'result': 'failed', 'msg': 'Mentor already exists in the database.'})
+    doc = {
+        'nama': mentor_receive,
+        'gender': gender_receive,
+        'address': address_receive
+    }
+    db.mentor.insert_one(doc)
+    return jsonify({'result': 'success', 'msg': 'Data berhasil disimpan!'})
+
 @app.route('/post_data_checking', methods=["POST"])
 def checking_post():
     if 'institute_name[]' in request.form:
@@ -217,7 +260,7 @@ def checking_post():
         course_titles = request.form.getlist('course_title[]')
         statuses = request.form.getlist('status[]')
         mentor_lists = request.form.getlist('mentor_list[]')
-        date_now = datetime.datetime.now().strftime('%Y-%m-%d')
+        date_now = dt.datetime.now().strftime('%Y-%m-%d')
 
         for i in range(len(institute_names)):
             doc = {
@@ -236,25 +279,24 @@ def checking_post():
 def mentor_check():
     token_receive = request.cookies.get(TOKEN_KEY)
     try:
-        payload = jwt.decode (
-            token_receive, 
-            SECRET_KEY, 
+        payload = jwt.decode(
+            token_receive,
+            SECRET_KEY,
             algorithms=['HS256']
         )
-        # user_info = db.users.find_one({'username': payload.get('email')})
-        # return render_template("index.html", user_info=user_info)
+        user_info = db.users.find_one({'email': payload.get('email')})
         if request.method == 'POST':
             file = request.files['file']
-            time_off = datetime.datetime.strptime(request.form['time_off'], '%Y-%m-%dT%H:%M')
+            time_off = dt.datetime.strptime(request.form['time_off'], '%Y-%m-%dT%H:%M')
 
             if file:
                 df = pd.read_csv(file)
                 selected_columns = ['Learners Name', 'Institute Name', 'Course Title', 'Submission Date', 'Status']
                 selected_data = df[selected_columns]
 
-                current_date = datetime.datetime.now().date()
-                previous_day = current_date - datetime.timedelta(days=1)
-                cutoff_time = datetime.datetime.combine(previous_day, datetime.time(hour=21, minute=0))
+                current_date = dt.date.today()
+                previous_day = current_date - timedelta(days=1)  # Use timedelta
+                cutoff_time = dt.datetime.combine(previous_day, dt.time(hour=21, minute=0))
 
                 grouped_data = defaultdict(list)
                 for index, row in selected_data.iterrows():
@@ -273,6 +315,7 @@ def mentor_check():
                             'Status': row['Status'],
                             'MentorList': get_mentor_by_institute(institute_name, course_title)
                         }
+                        print(item)
                         grouped_data[(institute_name, course_title)].append(item)
 
                 result = []
@@ -284,14 +327,15 @@ def mentor_check():
                     }
                     result.append(item)
 
-                return render_template('checking_mentor.html', result=result)
-        return render_template('checking_mentor.html')
-        
+                return render_template('checking_mentor.html', result=result, user_info=user_info)
+        return render_template('checking_mentor.html', user_info=user_info)
     except jwt.ExpiredSignatureError:
         msg = 'Your token has expired'
         return redirect(url_for('login', msg=msg))
     except jwt.exceptions.DecodeError:
-        msg = 'There was problem logging you in'
+        msg = 'There was a problem logging you in'
         return redirect(url_for('login', msg=msg))
+
+    
 if __name__ == '__main__':
     app.run(debug=True)

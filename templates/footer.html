@@ -5,8 +5,8 @@
                    © <script>
                          document.write(new Date().getFullYear())
                    </script>
-                   , made with ❤️ by <a href="https://themeselection.com" target="_blank"
-                         class="footer-link fw-bolder">Ronanda Saputra</a>
+                   , made with ❤️ by <a href="https://www.linkedin.com/in/ronanda-saputra/" target="_blank"
+                         class="footer-link fw-bolder">Mentor Intern 2023</a>
              </div>
              <div>
              </div>
@@ -30,54 +30,129 @@
              $('#presensiForm').toggle();
        });
 
-       function tambah_data() {
-            let mentor = $('#mentor').val();
-            let sekolah = $('#sekolah').val();
-            let program = $('#program').val();
-            $.ajax({
-                  type: "POST",
-                  url: "/tambah_data_kelas",
-                  data: {
-                        mentor_give: mentor,
-                        sekolah_give: sekolah,
-                        program_give: program,
-                  },
-                  success: function (response) {
-                        window.location.reload();
-                  }
-            });
-      };
+       function tambah_data_kelas() {
+             let mentor = $('#mentor').val();
+             let sekolah = $('#sekolah').val();
+             let program = $('#program').val();
+             alert(sekolah);
+             $.ajax({
+                   type: "POST",
+                   url: "/tambah_data_kelas",
+                   data: {
+                         mentor_give: mentor,
+                         sekolah_give: sekolah,
+                         program_give: program,
+                   },
+                   success: function (response) {
+                         window.location.reload();
+                   }
+             });
+       };
  </script>
+
+ <!-- Data table -->
+
+ <!-- Include jQuery -->
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
  <!-- Add Data Course -->
  <script type="text/javascript">
-      function tambah_data_institue() {
-            let institute = $('#institute').val();
-            let course = $('#course').val();
-            let category = $('#category').val();
+       function tambah_data_institue() {
+             let institute = $('#institute').val();
+             let course = $('#course').val();
+             let category = $('#category').val();
 
-            $.ajax({
-                  type: "POST",
-                  url: "/post_institute",
-                  data: {
-                        'institute_give': institute,
-                        'course_give': course,
-                        'category_give': category,
-                  },
-                  success: function (response) {
-                        if (response["result"] === "failed") {
-                              window.location.replace("/institute_course");
-                        } else {
-                              Swal.fire(
-                                    'Good job!',
-                                    'Data was added!',
-                                    'success'
-                              )
-                        }
-                  }
-            })
-      }
-</script>
+             $.ajax({
+                   type: "POST",
+                   url: "/post_institute",
+                   data: {
+                         'institute_give': institute,
+                         'course_give': course,
+                         'category_give': category,
+                   },
+                   success: function (response) {
+                         if (response["result"] === "failed") {
+                               window.location.replace("/institute_course");
+                         } else {
+                               Swal.fire(
+                                     'Good job!',
+                                     'Data was added!',
+                                     'success'
+                               )
+                         }
+                   }
+             })
+       }
+
+       function tambah_data_mentor() {
+             let mentor = $('#mentor').val();
+             let gender = $('#gender').val();
+             let address = $('#address').val();
+
+             $.ajax({
+                   type: "POST",
+                   url: "/post_mentor",
+                   data: {
+                         'mentor_give': mentor,
+                         'gender_give': gender,
+                         'address_give': address,
+                   },
+                   success: function (response) {
+                         if (response["result"] === "failed") {
+                               Swal.fire(
+                                     'Error!',
+                                     response["msg"],
+                                     'error'
+                               );
+                         } else {
+                               Swal.fire(
+                                     'Good job!',
+                                     'Data was added!',
+                                     'success'
+                               );
+                         }
+                   }
+             });
+       }
+ </script>
+
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+ <!-- Select2JS -->
+ <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+ <script>
+       $(document).ready(function () {
+             $('.js-example-basic-single').select2();
+             $('.js-example-basic-multi').select2({
+                  multiple: true
+             });
+             $('#searchMentor').on('keyup', function () {
+                   var value = $(this).val().toLowerCase();
+                   $('table tbody tr').filter(function () {
+                         $(this).toggle($(this).text().toLowerCase().indexOf(
+                               value) > -1)
+                   });
+             });
+
+             $('#searchSchool').on('keyup', function () {
+                   var value = $(this).val().toLowerCase();
+                   $('table tbody tr').filter(function () {
+                         $(this).toggle($(this).text().toLowerCase().indexOf(
+                               value) > -1)
+                   });
+             });
+
+             $('#searchClass').on('keyup', function () {
+                   var value = $(this).val().toLowerCase();
+                   $('table tbody tr').filter(function () {
+                         $(this).toggle($(this).text().toLowerCase().indexOf(
+                               value) > -1)
+                   });
+             });
+       });
+ </script>
 
  <!-- Sweet Alert -->
  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
