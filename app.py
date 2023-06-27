@@ -1,3 +1,6 @@
+import os
+from os.path import join, dirname
+from dotenv import load_dotenv
 from pymongo import MongoClient
 import jwt
 import hashlib
@@ -8,8 +11,16 @@ from collections import defaultdict
 import datetime as dt
 from datetime import datetime, timedelta
 
-client = MongoClient('mongodb+srv://nande:nande@cluster0.8kafc33.mongodb.net/?retryWrites=true&w=majority')
-db = client.dbmentorcek
+
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+MONGODB_URI = os.environ.get("MONGODB_URI")
+DB_NAME =  os.environ.get("DB_NAME")
+
+client = MongoClient(MONGODB_URI)
+
+db = client[DB_NAME]
 
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True  
