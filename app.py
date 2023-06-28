@@ -23,7 +23,7 @@ client = MongoClient(MONGODB_URI)
 db = client[DB_NAME]
 
 app = Flask(__name__)
-app.config['TEMPLATES_AUTO_RELOAD'] = True  
+
 TOKEN_KEY = 'gungnir'
 SECRET_KEY = "MENTORNANDA"
 
